@@ -10,7 +10,7 @@ export default defineConfig({
       manifest: {
         name: "Mi PWA Pro",
         short_name: "PWAPRO", 
-        description: "Aplicación PWA de ejemplo",
+        description: "Aplicación PWA ",
         start_url: "/",
         display: "standalone",
         background_color: "#ffffff",

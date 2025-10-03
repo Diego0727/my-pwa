@@ -5,7 +5,7 @@ function App() {
   const [loading, setLoading] = useState(true);
   const [currentView, setCurrentView] = useState('home');
 
-  // Simular splash screen
+  
   useEffect(() => {
     const timer = setTimeout(() => {
       setLoading(false);
@@ -13,7 +13,7 @@ function App() {
     return () => clearTimeout(timer);
   }, []);
 
-  // Splash Screen
+
   if (loading) {
     return (
       <div className="splash-screen">
@@ -27,7 +27,7 @@ function App() {
     );
   }
 
-  // Renderizar diferentes vistas
+  
   const renderHome = () => (
     <div className="home-content">
       <h2>¡Bienvenido a Mi PWA!</h2>

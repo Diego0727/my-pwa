@@ -21,7 +21,7 @@ self.addEventListener('install', (event) => {
   );
 });
 
-// Activación - Limpiar caches viejos
+
 self.addEventListener('activate', (event) => {
   console.log('Service Worker: Activado');
   event.waitUntil(
@@ -68,7 +68,7 @@ self.addEventListener('fetch', (event) => {
             return response;
           })
           .catch(() => {
-            // Si falla la red, puedes devolver una página offline personalizada
+            
             return new Response('Contenido no disponible offline', {
               status: 503,
               statusText: 'Service Unavailable',
