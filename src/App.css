@@ -1,4 +1,4 @@
-/* Reset y estilos base */
+
 * {
   margin: 0;
   padding: 0;
@@ -13,7 +13,7 @@ body {
   line-height: 1.6;
 }
 
-/* Splash Screen */
+
 .splash-screen {
   display: flex;
   justify-content: center;
@@ -56,7 +56,7 @@ body {
   animation: spin 1s linear infinite;
 }
 
-/* App Shell */
+
 .app-shell {
   min-height: 100vh;
   display: flex;
@@ -119,7 +119,7 @@ body {
   box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
 }
 
-/* Main Content */
+
 .app-main {
   flex: 1;
   padding: 2rem;
@@ -128,7 +128,7 @@ body {
   width: 100%;
 }
 
-/* Home View */
+
 .home-content h2 {
   color: white;
   text-align: center;
@@ -213,7 +213,7 @@ body {
   font-size: 0.9rem;
 }
 
-/* About View */
+
 .about-content h2,
 .config-content h2 {
   color: white;
@@ -270,7 +270,7 @@ body {
   font-weight: bold;
 }
 
-/* Footer */
+
 .app-footer {
   background: rgba(0, 0, 0, 0.8);
   color: white;
@@ -284,7 +284,7 @@ body {
   opacity: 0.9;
 }
 
-/* Animaciones */
+
 @keyframes fadeInUp {
   from {
     opacity: 0;
@@ -313,7 +313,7 @@ body {
   100% { transform: rotate(360deg); }
 }
 
-/* Responsive */
+
 @media (max-width: 768px) {
   .header-content {
     flex-direction: column;
