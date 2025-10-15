@@ -1,7 +1,7 @@
 /* public/sw.js */
 /* global self, caches, clients */
 
-const SW_VERSION = 'v3';                       // 🔁 súbelo cuando cambies el SW
+const SW_VERSION = 'v4'; // ⬅️ súbelo cada vez que cambies este archivo
 const APP_SHELL_CACHE = `app-shell-${SW_VERSION}`;
 const DYNAMIC_CACHE   = `dynamic-${SW_VERSION}`;
 const OFFLINE_URL     = '/offline.html';
@@ -17,17 +17,14 @@ const APP_SHELL = [
   '/icon-512.png',
 ];
 
-// ✅ Precarga del App Shell
+// ---------- INSTALACIÓN / ACTIVACIÓN ----------
 self.addEventListener('install', (event) => {
   event.waitUntil(
-    caches.open(APP_SHELL_CACHE)
-      .then((c) => c.addAll(APP_SHELL))
-      .catch(() => {/* ignora fallos de precache para no bloquear instalación */})
+    caches.open(APP_SHELL_CACHE).then((c) => c.addAll(APP_SHELL)).catch(() => {})
   );
   self.skipWaiting();
 });
 
-// ✅ Limpieza de cachés antiguos y toma de control
 self.addEventListener('activate', (event) => {
   event.waitUntil((async () => {
     const keys = await caches.keys();
@@ -40,26 +37,20 @@ self.addEventListener('activate', (event) => {
   })());
 });
 
-// ✅ Estrategias por tipo de request
+// ---------- FETCH ESTRATEGIAS ----------
 self.addEventListener('fetch', (event) => {
   const req = event.request;
-
-  // No interceptar métodos que no sean GET
-  if (req.method !== 'GET') return;
-
+  if (req.method !== 'GET') return; // no tocar POST/PUT/…
   const url = new URL(req.url);
 
-  // Navegaciones (SPA): network-first con fallback a offline.html
+  // Navegaciones: network-first con fallback a offline.html
   if (req.mode === 'navigate') {
     event.respondWith(networkFirst(req, OFFLINE_URL));
     return;
   }
 
   // Estáticos (incluye /assets de Vite): cache-first
-  if (
-    url.pathname.startsWith('/assets/') ||
-    /\.(css|js|mjs|woff2?|ttf|eot)$/.test(url.pathname)
-  ) {
+  if (url.pathname.startsWith('/assets/') || /\.(css|js|mjs|woff2?|ttf|eot)$/.test(url.pathname)) {
     event.respondWith(cacheFirst(req));
     return;
   }
@@ -76,7 +67,7 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // Por defecto: stale-while-revalidate
+  // Por defecto
   event.respondWith(staleWhileRevalidate(req));
 });
 
@@ -84,10 +75,13 @@ async function cacheFirst(req) {
   const cache = await caches.open(APP_SHELL_CACHE);
   const hit = await cache.match(req);
   if (hit) return hit;
-  const res = await fetch(req);
-  // Evita cachear respuestas inválidas
-  if (res && res.status === 200) cache.put(req, res.clone());
-  return res;
+  try {
+    const res = await fetch(req);
+    if (res.ok && res.type !== 'opaque') cache.put(req, res.clone());
+    return res;
+  } catch {
+    return caches.match(OFFLINE_URL);
+  }
 }
 
 async function staleWhileRevalidate(req) {
@@ -95,7 +89,7 @@ async function staleWhileRevalidate(req) {
   const cached = await cache.match(req);
   const fetcher = fetch(req)
     .then((res) => {
-      if (res && res.status === 200) cache.put(req, res.clone());
+      if (res.ok && res.type !== 'opaque') cache.put(req, res.clone());
       return res;
     })
     .catch(() => cached);
@@ -106,7 +100,7 @@ async function networkFirst(req, offlineFallback) {
   const cache = await caches.open(DYNAMIC_CACHE);
   try {
     const fresh = await fetch(req);
-    if (fresh && fresh.status === 200) cache.put(req, fresh.clone());
+    if (fresh.ok && fresh.type !== 'opaque') cache.put(req, fresh.clone());
     return fresh;
   } catch {
     const cached = await cache.match(req);
@@ -116,7 +110,7 @@ async function networkFirst(req, offlineFallback) {
   }
 }
 
-// ✅ Background Sync (sin backend): pide al cliente marcar como sent
+// ---------- BACKGROUND SYNC (simulado) ----------
 self.addEventListener('sync', (event) => {
   if (event.tag === 'sync-entries') {
     event.waitUntil((async () => {
@@ -126,12 +120,12 @@ self.addEventListener('sync', (event) => {
   }
 });
 
-// ✅ Push real o “manual” (si luego configuras FCM/VAPID)
+// ---------- PUSH (real/manual) ----------
 self.addEventListener('push', (event) => {
-  const data = event.data ? event.data.json() : { title: 'Notificación', body: 'Push recibido.' };
+  const data = event.data ? safeJson(event.data.text()) : { title: 'Notification', body: 'Push received.' };
   event.waitUntil(
-    self.registration.showNotification(data.title || 'Notificación', {
-      body: data.body || 'Mensaje',
+    self.registration.showNotification(data.title || 'Notification', {
+      body: data.body || 'Message',
       icon: '/icon-192.png',
       badge: '/icon-192.png',
       data: data.data || { url: '/' },
@@ -142,7 +136,17 @@ self.addEventListener('push', (event) => {
   );
 });
 
-// ✅ Notificación manual enviada desde la página (postMessage)
+function safeJson(textPromise) {
+  try {
+    // event.data.text() devuelve una Promise<string>
+    // manejamos ambos casos (cadena o promesa)
+    if (typeof textPromise === 'string') return JSON.parse(textPromise);
+    // si es promesa, devolvemos un objeto por defecto y no rompemos
+    return {};
+  } catch { return {}; }
+}
+
+// ---------- MENSAJE DESDE LA PÁGINA (postMessage → TEST_PUSH) ----------
 self.addEventListener('message', (event) => {
   const { type, payload } = event.data || {};
   if (type === 'TEST_PUSH') {
@@ -163,22 +167,20 @@ self.addEventListener('message', (event) => {
   }
 });
 
-// ✅ Abrir/centrar la app al tocar la notificación
+// ---------- CLIC EN NOTIFICACIÓN ----------
 self.addEventListener('notificationclick', (event) => {
   event.notification.close();
   const url = event.notification.data?.url || '/';
   event.waitUntil((async () => {
     const windowClients = await clients.matchAll({ type: 'window', includeUncontrolled: true });
-    // Si ya hay una pestaña de la app, llévala al frente
     for (const c of windowClients) {
       const cUrl = new URL(c.url);
       if (cUrl.origin === self.location.origin) {
         c.focus();
-        c.navigate(url).catch(() => {}); // opcional
+        c.navigate(url).catch(() => {});
         return;
       }
     }
-    // Si no existe, abre una nueva
     await clients.openWindow(url);
   })());
 });
