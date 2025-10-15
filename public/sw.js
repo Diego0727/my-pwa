@@ -1,6 +1,5 @@
 
-
-const SW_VERSION = 'v4'; 
+const SW_VERSION = 'v3';                      
 const APP_SHELL_CACHE = `app-shell-${SW_VERSION}`;
 const DYNAMIC_CACHE   = `dynamic-${SW_VERSION}`;
 const OFFLINE_URL     = '/offline.html';
@@ -16,13 +15,15 @@ const APP_SHELL = [
   '/icon-512.png',
 ];
 
-
 self.addEventListener('install', (event) => {
   event.waitUntil(
-    caches.open(APP_SHELL_CACHE).then((c) => c.addAll(APP_SHELL)).catch(() => {})
+    caches.open(APP_SHELL_CACHE)
+      .then((c) => c.addAll(APP_SHELL))
+      .catch(() => {/* ignora fallos de precache para no bloquear instalación */})
   );
   self.skipWaiting();
 });
+
 
 self.addEventListener('activate', (event) => {
   event.waitUntil((async () => {
@@ -39,33 +40,38 @@ self.addEventListener('activate', (event) => {
 
 self.addEventListener('fetch', (event) => {
   const req = event.request;
-  if (req.method !== 'GET') return; // no tocar POST/PUT/…
+
+  if (req.method !== 'GET') return;
+
   const url = new URL(req.url);
 
-  // Navegaciones: network-first con fallback a offline.html
   if (req.mode === 'navigate') {
     event.respondWith(networkFirst(req, OFFLINE_URL));
     return;
   }
 
-  if (url.pathname.startsWith('/assets/') || /\.(css|js|mjs|woff2?|ttf|eot)$/.test(url.pathname)) {
+ 
+  if (
+    url.pathname.startsWith('/assets/') ||
+    /\.(css|js|mjs|woff2?|ttf|eot)$/.test(url.pathname)
+  ) {
     event.respondWith(cacheFirst(req));
     return;
   }
 
- 
+
   if (/\.(png|jpg|jpeg|gif|svg|webp|ico)$/.test(url.pathname)) {
     event.respondWith(staleWhileRevalidate(req));
     return;
   }
 
-  
+ 
   if (url.pathname.startsWith('/api/')) {
     event.respondWith(networkFirst(req, OFFLINE_URL));
     return;
   }
 
-
+  
   event.respondWith(staleWhileRevalidate(req));
 });
 
@@ -73,13 +79,10 @@ async function cacheFirst(req) {
   const cache = await caches.open(APP_SHELL_CACHE);
   const hit = await cache.match(req);
   if (hit) return hit;
-  try {
-    const res = await fetch(req);
-    if (res.ok && res.type !== 'opaque') cache.put(req, res.clone());
-    return res;
-  } catch {
-    return caches.match(OFFLINE_URL);
-  }
+  const res = await fetch(req);
+
+  if (res && res.status === 200) cache.put(req, res.clone());
+  return res;
 }
 
 async function staleWhileRevalidate(req) {
@@ -87,7 +90,7 @@ async function staleWhileRevalidate(req) {
   const cached = await cache.match(req);
   const fetcher = fetch(req)
     .then((res) => {
-      if (res.ok && res.type !== 'opaque') cache.put(req, res.clone());
+      if (res && res.status === 200) cache.put(req, res.clone());
       return res;
     })
     .catch(() => cached);
@@ -98,7 +101,7 @@ async function networkFirst(req, offlineFallback) {
   const cache = await caches.open(DYNAMIC_CACHE);
   try {
     const fresh = await fetch(req);
-    if (fresh.ok && fresh.type !== 'opaque') cache.put(req, fresh.clone());
+    if (fresh && fresh.status === 200) cache.put(req, fresh.clone());
     return fresh;
   } catch {
     const cached = await cache.match(req);
@@ -120,10 +123,10 @@ self.addEventListener('sync', (event) => {
 
 
 self.addEventListener('push', (event) => {
-  const data = event.data ? safeJson(event.data.text()) : { title: 'Notification', body: 'Push received.' };
+  const data = event.data ? event.data.json() : { title: 'Notificación', body: 'Push recibido.' };
   event.waitUntil(
-    self.registration.showNotification(data.title || 'Notification', {
-      body: data.body || 'Message',
+    self.registration.showNotification(data.title || 'Notificación', {
+      body: data.body || 'Mensaje',
       icon: '/icon-192.png',
       badge: '/icon-192.png',
       data: data.data || { url: '/' },
@@ -133,14 +136,6 @@ self.addEventListener('push', (event) => {
     })
   );
 });
-
-function safeJson(textPromise) {
-  try {
-    
-    if (typeof textPromise === 'string') return JSON.parse(textPromise);
-    return {};
-  } catch { return {}; }
-}
 
 self.addEventListener('message', (event) => {
   const { type, payload } = event.data || {};
@@ -168,14 +163,17 @@ self.addEventListener('notificationclick', (event) => {
   const url = event.notification.data?.url || '/';
   event.waitUntil((async () => {
     const windowClients = await clients.matchAll({ type: 'window', includeUncontrolled: true });
+    // Si ya hay una pestaña de la app, llévala al frente
     for (const c of windowClients) {
       const cUrl = new URL(c.url);
       if (cUrl.origin === self.location.origin) {
         c.focus();
-        c.navigate(url).catch(() => {});
+        c.navigate(url).catch(() => {}); // opcional
         return;
       }
     }
+   
     await clients.openWindow(url);
   })());
 });
+
