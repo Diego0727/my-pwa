@@ -1,22 +1,26 @@
 {
-  "name": "Mi PWA Pro",
-  "short_name": "PWA Pro",
-  "description": "Aplicación PWA para demostrar componentes esenciales",
+  "name": "PWA Tareas Offline",
+  "short_name": "TareasPWA",
+  "description": "Aplicación PWA para registrar tareas offline con sincronización local y notificaciones.",
   "start_url": "/",
+  "scope": "/",
   "display": "standalone",
-  "background_color": "#667eea",
-  "theme_color": "#667eea",
-  "orientation": "portrait-primary",
+  "orientation": "portrait",
+  "background_color": "#ffffff",
+  "theme_color": "#0078d7",
   "icons": [
     {
-      "src": "icon-192.png",
+      "src": "/icon-192.png",
       "sizes": "192x192",
       "type": "image/png"
     },
     {
-      "src": "icon-512.png",
+      "src": "/icon-512.png",
       "sizes": "512x512",
       "type": "image/png"
     }
-  ]
+  ],
+  "id": "tareas-offline",
+  "lang": "es-MX",
+  "dir": "ltr"
 }
