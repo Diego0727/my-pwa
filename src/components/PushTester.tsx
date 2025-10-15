@@ -1,13 +1,11 @@
-// src/components/PushTester.tsx
 export default function PushTester() {
   async function onClick() {
-    // 1) Soporte básico
+ 
     if (!('serviceWorker' in navigator) || !('Notification' in window)) {
       alert('Este navegador no soporta Service Worker o Notification API.');
       return;
     }
 
-    // 2) Permiso de notificaciones
     if (Notification.permission !== 'granted') {
       const res = await Notification.requestPermission();
       if (res !== 'granted') {
@@ -15,11 +13,9 @@ export default function PushTester() {
         return;
       }
     }
-
-    // 3) Registro del SW listo
     const reg = await navigator.serviceWorker.ready;
 
-    // 4) Intento principal: postMessage → SW (handler TEST_PUSH en sw.js)
+ 
     try {
       reg.active?.postMessage({
         type: 'TEST_PUSH',
@@ -29,8 +25,7 @@ export default function PushTester() {
         },
       });
     } catch (err) {
-      // 5) Fallback: dispara la notificación directo desde el registro
-      // (evita quedarte sin notificación si algo pasa con postMessage)
+    
       try {
         await reg.showNotification('Prueba de notificación', {
           body: 'Fallback directo desde Registration',

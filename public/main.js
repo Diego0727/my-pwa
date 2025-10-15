@@ -1,24 +1,22 @@
 
-// Pedir permiso para notificaciones al cargar la app
+
 if ('Notification' in window) {
   Notification.requestPermission().then(permission => {
     if (permission === 'granted') {
-      console.log('✅ Permiso de notificación concedido');
+      console.log(' Permiso de notificación concedido');
     } else {
-      console.warn('🚫 Permiso de notificación denegado');
+      console.warn(' Permiso de notificación denegado');
     }
   });
 }
 
 
 
-
-// Registrar el service worker
 if ('serviceWorker' in navigator) {
   navigator.serviceWorker.register('sw.js').then(() => console.log('SW registrado'));
 }
 
-// Estado de conexión
+
 const estado = document.getElementById('estado');
 function actualizarEstado() {
   estado.textContent = navigator.onLine ? "🟢 En línea" : "🔴 Sin conexión";
@@ -27,7 +25,7 @@ window.addEventListener('online', actualizarEstado);
 window.addEventListener('offline', actualizarEstado);
 actualizarEstado();
 
-// IndexedDB
+
 let db;
 const request = indexedDB.open('tareasDB', 1);
 request.onupgradeneeded = e => {
@@ -39,7 +37,7 @@ request.onsuccess = e => {
   mostrarTareas();
 };
 
-// Agregar tarea
+
 document.getElementById('form').addEventListener('submit', e => {
   e.preventDefault();
   const texto = document.getElementById('tarea').value.trim();
@@ -57,7 +55,7 @@ document.getElementById('form').addEventListener('submit', e => {
   };
 });
 
-// Mostrar tareas
+
 function mostrarTareas() {
   const lista = document.getElementById('listaTareas');
   const tx = db.transaction('tareas', 'readonly');

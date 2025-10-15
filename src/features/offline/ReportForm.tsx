@@ -1,4 +1,4 @@
-// src/features/offline/ReportForm.tsx
+
 import { useState } from 'react';
 import { addEntry } from '../../lib/db';
 
@@ -17,17 +17,16 @@ export default function ReportForm() {
       status: navigator.onLine ? 'sent' : 'pending',
     } as const;
 
-    // Guarda y recupera el id generado
+
     const id = await addEntry(entry);
 
-    // 🔔 Notificar a la app que cambió la lista (se actualizará al instante)
+    
     window.dispatchEvent(new CustomEvent('entries:changed', { detail: { id } }));
 
-    // Limpia el formulario
+    
     setTitle('');
     setNotes('');
 
-    // BG Sync (simulado) si no hay red
     if (!navigator.onLine && 'serviceWorker' in navigator && 'SyncManager' in window) {
       const reg = await navigator.serviceWorker.ready;
       await (reg as any).sync.register('sync-entries'); // cast por tipos TS del navegador
@@ -36,7 +35,7 @@ export default function ReportForm() {
       setMsg(navigator.onLine ? 'Enviado (simulado).' : 'Guardado offline.');
     }
 
-    // Notificación local (si el permiso ya fue otorgado)
+   
     if ('Notification' in window && Notification.permission === 'granted') {
       const reg = await navigator.serviceWorker.ready;
       reg.active?.postMessage({

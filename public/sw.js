@@ -1,7 +1,6 @@
-/* public/sw.js */
-/* global self, caches, clients */
 
-const SW_VERSION = 'v4'; // ⬅️ súbelo cada vez que cambies este archivo
+
+const SW_VERSION = 'v4'; 
 const APP_SHELL_CACHE = `app-shell-${SW_VERSION}`;
 const DYNAMIC_CACHE   = `dynamic-${SW_VERSION}`;
 const OFFLINE_URL     = '/offline.html';
@@ -17,7 +16,7 @@ const APP_SHELL = [
   '/icon-512.png',
 ];
 
-// ---------- INSTALACIÓN / ACTIVACIÓN ----------
+
 self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(APP_SHELL_CACHE).then((c) => c.addAll(APP_SHELL)).catch(() => {})
@@ -37,7 +36,7 @@ self.addEventListener('activate', (event) => {
   })());
 });
 
-// ---------- FETCH ESTRATEGIAS ----------
+
 self.addEventListener('fetch', (event) => {
   const req = event.request;
   if (req.method !== 'GET') return; // no tocar POST/PUT/…
@@ -49,25 +48,24 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // Estáticos (incluye /assets de Vite): cache-first
   if (url.pathname.startsWith('/assets/') || /\.(css|js|mjs|woff2?|ttf|eot)$/.test(url.pathname)) {
     event.respondWith(cacheFirst(req));
     return;
   }
 
-  // Imágenes: stale-while-revalidate
+ 
   if (/\.(png|jpg|jpeg|gif|svg|webp|ico)$/.test(url.pathname)) {
     event.respondWith(staleWhileRevalidate(req));
     return;
   }
 
-  // Datos frescos (cuando tengas API): network-first
+  
   if (url.pathname.startsWith('/api/')) {
     event.respondWith(networkFirst(req, OFFLINE_URL));
     return;
   }
 
-  // Por defecto
+
   event.respondWith(staleWhileRevalidate(req));
 });
 
@@ -110,7 +108,7 @@ async function networkFirst(req, offlineFallback) {
   }
 }
 
-// ---------- BACKGROUND SYNC (simulado) ----------
+
 self.addEventListener('sync', (event) => {
   if (event.tag === 'sync-entries') {
     event.waitUntil((async () => {
@@ -120,7 +118,7 @@ self.addEventListener('sync', (event) => {
   }
 });
 
-// ---------- PUSH (real/manual) ----------
+
 self.addEventListener('push', (event) => {
   const data = event.data ? safeJson(event.data.text()) : { title: 'Notification', body: 'Push received.' };
   event.waitUntil(
@@ -138,15 +136,12 @@ self.addEventListener('push', (event) => {
 
 function safeJson(textPromise) {
   try {
-    // event.data.text() devuelve una Promise<string>
-    // manejamos ambos casos (cadena o promesa)
+    
     if (typeof textPromise === 'string') return JSON.parse(textPromise);
-    // si es promesa, devolvemos un objeto por defecto y no rompemos
     return {};
   } catch { return {}; }
 }
 
-// ---------- MENSAJE DESDE LA PÁGINA (postMessage → TEST_PUSH) ----------
 self.addEventListener('message', (event) => {
   const { type, payload } = event.data || {};
   if (type === 'TEST_PUSH') {
@@ -167,7 +162,7 @@ self.addEventListener('message', (event) => {
   }
 });
 
-// ---------- CLIC EN NOTIFICACIÓN ----------
+
 self.addEventListener('notificationclick', (event) => {
   event.notification.close();
   const url = event.notification.data?.url || '/';

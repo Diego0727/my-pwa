@@ -1,6 +1,6 @@
-// src/App.tsx
-import './App.css'; // la puedes dejar; no estorba
-import './index.css'; // si lo usas, igual no estorba
+
+import './App.css'; 
+import './index.css'; 
 
 import ReportForm from './features/offline/ReportForm';
 import ReportList from './features/offline/ReportList';

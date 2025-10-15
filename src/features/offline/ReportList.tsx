@@ -1,4 +1,4 @@
-// src/features/offline/ReportList.tsx
+
 import { useEffect, useState } from 'react';
 import { listEntries, type Entry } from '../../lib/db';
 
@@ -11,14 +11,13 @@ export default function ReportList() {
   }
 
   useEffect(() => {
-    // Carga inicial
+  
     void load();
-
-    // 🔔 refresca cuando el formulario agrega un item nuevo
+ 
     const reload = () => { void load(); };
     window.addEventListener('entries:changed', reload as EventListener);
 
-    // también refresca al volver el foco a la pestaña
+    
     window.addEventListener('focus', reload);
 
     return () => {

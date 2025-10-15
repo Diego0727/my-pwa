@@ -1,4 +1,4 @@
-/* ==== Tema Turquesa-Cian moderno ==== */
+
 :root{
   --bg1: #07161f;
   --bg2: #0b2230;
@@ -17,7 +17,7 @@
   --container: 980px;
 }
 
-/* ===== Reset ===== */
+
 *{ box-sizing:border-box }
 html,body{ height:100%; margin:0; }
 body{
@@ -30,12 +30,12 @@ body{
   text-rendering: optimizeLegibility;
 }
 
-/* ===== Layout ===== */
+
 .page{ min-height:100%; display:flex; flex-direction:column }
 .container{ width:100%; max-width:var(--container); margin:0 auto; padding:24px }
 .stack-lg > * + *{ margin-top:24px }
 
-/* ===== Hero ===== */
+
 .hero{
   text-align:center;
   padding-top: 40px;
@@ -54,7 +54,7 @@ body{
   font-size: 15px;
 }
 
-/* ===== Card ===== */
+
 .card{
   background: var(--card);
   border: 1px solid rgba(255,255,255,.08);
@@ -71,7 +71,7 @@ body{
   margin-bottom: 12px;
 }
 
-/* ===== Form ===== */
+
 form.space-y-3{ display:grid; gap:14px; }
 .form-grid{ display:block; }
 label{ font-size:13px; color:var(--muted); margin-bottom:5px; display:block; }
@@ -92,7 +92,7 @@ input:focus, textarea:focus{
 }
 textarea{ resize: vertical; min-height: 90px; }
 
-/* ===== Botones ===== */
+
 button{
   background: linear-gradient(180deg, var(--primary), var(--primary-600));
   border:none;
@@ -107,7 +107,7 @@ button{
 button:hover{ filter: brightness(1.1); }
 button:active{ transform: translateY(1px); }
 
-/* ===== Lista de registros ===== */
+
 .mt-4{ margin-top:16px }
 .space-y-2 > * + *{ margin-top:10px }
 .border{ border:1px solid rgba(255,255,255,.08) }
@@ -118,7 +118,7 @@ button:active{ transform: translateY(1px); }
 .opacity-60{ opacity:.7 }
 .opacity-80{ opacity:.9 }
 
-/* ===== Footer ===== */
+
 .footer{
   margin-top:auto;
   text-align:center;
@@ -128,7 +128,6 @@ button:active{ transform: translateY(1px); }
   font-size: 14px;
 }
 
-/* ===== Responsivo ===== */
 @media (min-width: 700px){
   .form-grid{
     display:grid;

@@ -1,4 +1,3 @@
-// src/lib/db.ts
 import { openDB, type IDBPDatabase } from 'idb';
 
 export interface Entry {
@@ -35,7 +34,7 @@ export async function getDB() {
   return _db;
 }
 
-/** Guarda y devuelve el id generado (para refrescar la UI al instante) */
+
 export async function addEntry(e: Omit<Entry, 'id'>): Promise<number> {
   const db = await getDB();
   const id = await db.add('entries', e);
