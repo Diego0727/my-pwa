@@ -1,0 +1,139 @@
+/* ==== Tema Turquesa-Cian moderno ==== */
+:root{
+  --bg1: #07161f;
+  --bg2: #0b2230;
+  --grad1: #0d2e3c;
+  --grad2: #0a1e29;
+  --card: rgba(255, 255, 255, 0.04);
+  --text: #e5f9ff;
+  --muted: #9bd6e2;
+  --title: #ffffff;
+  --primary: #00c4cc;
+  --primary-600: #00a1a8;
+  --primary-700: #007a80;
+  --ring: rgba(0, 196, 204, .35);
+  --radius: 16px;
+  --shadow: 0 12px 28px rgba(0,0,0,.4);
+  --container: 980px;
+}
+
+/* ===== Reset ===== */
+*{ box-sizing:border-box }
+html,body{ height:100%; margin:0; }
+body{
+  font-family: 'Segoe UI', Roboto, Inter, sans-serif;
+  color: var(--text);
+  background: radial-gradient(1000px 700px at 20% 0%, var(--grad1), transparent),
+              radial-gradient(1200px 800px at 100% 100%, var(--primary-700), transparent),
+              linear-gradient(180deg, var(--bg1), var(--bg2));
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+/* ===== Layout ===== */
+.page{ min-height:100%; display:flex; flex-direction:column }
+.container{ width:100%; max-width:var(--container); margin:0 auto; padding:24px }
+.stack-lg > * + *{ margin-top:24px }
+
+/* ===== Hero ===== */
+.hero{
+  text-align:center;
+  padding-top: 40px;
+  padding-bottom: 10px;
+}
+.hero__title{
+  font-size: clamp(28px, 4vw, 46px);
+  color: var(--primary);
+  font-weight: 800;
+  margin-bottom: 10px;
+}
+.hero__lead{
+  color: var(--muted);
+  max-width: 70ch;
+  margin: 0 auto;
+  font-size: 15px;
+}
+
+/* ===== Card ===== */
+.card{
+  background: var(--card);
+  border: 1px solid rgba(255,255,255,.08);
+  border-radius: var(--radius);
+  padding: 22px;
+  backdrop-filter: blur(6px);
+  box-shadow: var(--shadow);
+}
+.section__title{
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--primary);
+  margin-top: 0;
+  margin-bottom: 12px;
+}
+
+/* ===== Form ===== */
+form.space-y-3{ display:grid; gap:14px; }
+.form-grid{ display:block; }
+label{ font-size:13px; color:var(--muted); margin-bottom:5px; display:block; }
+input[type="text"], textarea{
+  width:100%;
+  background: #06141d;
+  border:1px solid rgba(255,255,255,.1);
+  border-radius: 12px;
+  padding: 10px 12px;
+  color: var(--text);
+  font-size:15px;
+  outline:none;
+  transition: all .15s ease;
+}
+input:focus, textarea:focus{
+  border-color: var(--primary);
+  box-shadow: 0 0 0 4px var(--ring);
+}
+textarea{ resize: vertical; min-height: 90px; }
+
+/* ===== Botones ===== */
+button{
+  background: linear-gradient(180deg, var(--primary), var(--primary-600));
+  border:none;
+  border-radius: 12px;
+  padding: 10px 20px;
+  color:#fff;
+  font-weight:600;
+  cursor:pointer;
+  box-shadow: var(--shadow);
+  transition: all .2s ease;
+}
+button:hover{ filter: brightness(1.1); }
+button:active{ transform: translateY(1px); }
+
+/* ===== Lista de registros ===== */
+.mt-4{ margin-top:16px }
+.space-y-2 > * + *{ margin-top:10px }
+.border{ border:1px solid rgba(255,255,255,.08) }
+.rounded{ border-radius: 12px }
+.p-2{ padding:12px }
+.text-xs{ font-size:12px }
+.font-semibold{ font-weight:600 }
+.opacity-60{ opacity:.7 }
+.opacity-80{ opacity:.9 }
+
+/* ===== Footer ===== */
+.footer{
+  margin-top:auto;
+  text-align:center;
+  padding: 22px 0 30px;
+  color: var(--muted);
+  border-top: 1px solid rgba(255,255,255,.05);
+  font-size: 14px;
+}
+
+/* ===== Responsivo ===== */
+@media (min-width: 700px){
+  .form-grid{
+    display:grid;
+    grid-template-columns: 1fr 1fr auto;
+    gap:12px;
+    align-items:end;
+  }
+}

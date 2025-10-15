@@ -6,6 +6,9 @@ export default defineConfig({
   plugins: [
     react(),
     VitePWA({
+        devOptions: {
+    enabled: true, // 🔥 activa el SW también en modo dev
+  },
       registerType: 'autoUpdate',
       manifest: {
         name: "Mi PWA Pro",
