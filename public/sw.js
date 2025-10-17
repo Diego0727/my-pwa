@@ -1,5 +1,6 @@
 
-const SW_VERSION = 'v3';                      
+
+const SW_VERSION = 'v3';                       
 const APP_SHELL_CACHE = `app-shell-${SW_VERSION}`;
 const DYNAMIC_CACHE   = `dynamic-${SW_VERSION}`;
 const OFFLINE_URL     = '/offline.html';
@@ -19,7 +20,7 @@ self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(APP_SHELL_CACHE)
       .then((c) => c.addAll(APP_SHELL))
-      .catch(() => {/* ignora fallos de precache para no bloquear instalación */})
+      .catch(() => {})
   );
   self.skipWaiting();
 });
@@ -41,6 +42,7 @@ self.addEventListener('activate', (event) => {
 self.addEventListener('fetch', (event) => {
   const req = event.request;
 
+ 
   if (req.method !== 'GET') return;
 
   const url = new URL(req.url);
@@ -50,7 +52,7 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
- 
+  
   if (
     url.pathname.startsWith('/assets/') ||
     /\.(css|js|mjs|woff2?|ttf|eot)$/.test(url.pathname)
@@ -59,7 +61,7 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-
+  
   if (/\.(png|jpg|jpeg|gif|svg|webp|ico)$/.test(url.pathname)) {
     event.respondWith(staleWhileRevalidate(req));
     return;
@@ -71,7 +73,6 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  
   event.respondWith(staleWhileRevalidate(req));
 });
 
@@ -80,7 +81,7 @@ async function cacheFirst(req) {
   const hit = await cache.match(req);
   if (hit) return hit;
   const res = await fetch(req);
-
+  // Evita cachear respuestas inválidas
   if (res && res.status === 200) cache.put(req, res.clone());
   return res;
 }
@@ -121,7 +122,6 @@ self.addEventListener('sync', (event) => {
   }
 });
 
-
 self.addEventListener('push', (event) => {
   const data = event.data ? event.data.json() : { title: 'Notificación', body: 'Push recibido.' };
   event.waitUntil(
@@ -136,6 +136,7 @@ self.addEventListener('push', (event) => {
     })
   );
 });
+
 
 self.addEventListener('message', (event) => {
   const { type, payload } = event.data || {};
@@ -157,18 +158,16 @@ self.addEventListener('message', (event) => {
   }
 });
 
-
 self.addEventListener('notificationclick', (event) => {
   event.notification.close();
   const url = event.notification.data?.url || '/';
   event.waitUntil((async () => {
     const windowClients = await clients.matchAll({ type: 'window', includeUncontrolled: true });
-    // Si ya hay una pestaña de la app, llévala al frente
     for (const c of windowClients) {
       const cUrl = new URL(c.url);
       if (cUrl.origin === self.location.origin) {
         c.focus();
-        c.navigate(url).catch(() => {}); // opcional
+        c.navigate(url).catch(() => {}); 
         return;
       }
     }
@@ -176,4 +175,3 @@ self.addEventListener('notificationclick', (event) => {
     await clients.openWindow(url);
   })());
 });
-
